@@ -1,0 +1,26 @@
+body {
+    font-family: Arial, sans-serif; /* A basic sans-serif font */
+    background-color: #f5f5f5;     /* Light gray background color */
+    margin: 0;
+    overflow: hidden;              /* To prevent any potential scroll bars */
+}
+
+.container {
+    width: 250px;                   /* Width of the popup, adjust as needed */
+    height: 180px;                  /* Height of the popup, adjust as needed */
+    background-color: #fff;        /* White background color for the content */
+    padding: 15px;                 /* Padding around the content */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);  /* A subtle shadow for depth */
+    border-radius: 10px;           /* Rounded corners */
+}
+
+h1, h2 {
+    color: #333;                   /* Dark text color */
+    margin-top: 0;
+    margin-bottom: 10px;           /* Space between elements */
+}
+
+p {
+    color: #666;                   /* Slightly lighter text color */
+    margin-bottom: 10px;           /* Space between elements */
+}
