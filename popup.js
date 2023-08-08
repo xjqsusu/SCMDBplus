@@ -60,3 +60,7 @@ function formatTimestamp(epoch) {
     return `${month}/${day}/${year}`;
 }
 
+function isCheckboxChecked() {
+    const checkbox = document.querySelector('#build_details_table input[type="checkbox"]:checked');
+    return !!checkbox;
+}

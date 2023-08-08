@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SCMDB plus",
   "version": "1.0",
-  "permissions": ["activeTab", "tabs", "scripting"],
+  "permissions": ["activeTab", "tabs", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html"
   },
@@ -14,5 +14,15 @@
   },
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "content_scripts": [
+      {
+          "matches": ["http://scmdb.mascorp.com/py/scmbuild/*"],
+          "js": ["content.js"]
+      },
+      {
+          "matches": ["https://jira.panasonic.aero/*"],
+          "js": ["jiraAutoClick.js"]
+      }
+  ]
 }

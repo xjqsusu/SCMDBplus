@@ -6,3 +6,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         chrome.action.disable(tabId);
     }
 });
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.action === "openNewTab") {
+        chrome.tabs.create({ url: request.url });
+    }
+});
