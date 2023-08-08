@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SCMDB plus",
-  "version": "1.0",
+  "version": "2.0",
   "permissions": ["activeTab", "tabs", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html"
