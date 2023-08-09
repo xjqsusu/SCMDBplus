@@ -19,10 +19,9 @@
       {
           "matches": ["http://scmdb.mascorp.com/py/scmbuild/*"],
           "js": ["content.js"]
-      },
-      {
-          "matches": ["https://jira.panasonic.aero/*"],
-          "js": ["jiraAutoClick.js"]
       }
+  ],
+  "host_permissions": [
+    "https://jira.panasonic.aero/*"
   ]
 }

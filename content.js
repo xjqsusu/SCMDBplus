@@ -85,13 +85,8 @@ function addButton() {
     button.className = "btn btn-xs btn-primary";
     button.style.marginLeft = "10px";  // Add some space between buttons
     button.style.display = "none";  // Initially hidden
-    // button.onclick = function() {
-    //     chrome.runtime.sendMessage({
-    //         action: "openNewTab",
-    //         url: 'https://jira.panasonic.aero/'
-    //     });
-    // };
-    button.onclick = function() {
+    
+    button.addEventListener('click', function() {
         // Get the checked checkbox data
         const checkedCheckbox = [...document.querySelectorAll('#build_details_table .custom-checkbox')].find(cb => cb.checked);
         const dataObject = {
@@ -108,13 +103,13 @@ function addButton() {
             } else {
                 chrome.storage.local.set({ [checkedCheckbox.dataset.id]: dataObject }, function() {
                     chrome.runtime.sendMessage({
-                        action: "openNewTab",
-                        url: 'https://jira.panasonic.aero/'
+                        action: "requestNewPN"
                     });
                 });
             }
         });
-    };
+    });
+
     const targetButton = document.getElementById("check_latest_button");
     if (targetButton && !document.getElementById("request-pn-button")) {  // Ensure our button doesn't already exist
         button.id = "request-pn-button";  // Giving an ID to our new button to identify it

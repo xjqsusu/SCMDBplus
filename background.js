@@ -8,7 +8,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action === "openNewTab") {
-        chrome.tabs.create({ url: request.url });
+    if (request.action === "requestNewPN") {
+        chrome.tabs.create({ url: 'https://jira.panasonic.aero/' }, function(tab) {
+            // Wait for the new tab to report that it has completed loading
+            const listener = (newTabId, changeInfo) => {
+                if (newTabId === tab.id && changeInfo.status === 'complete') {
+                    chrome.scripting.executeScript({
+                        target: {tabId: newTabId},
+                        files: ['jiraAutoClick.js']
+                    });
+                    chrome.tabs.onUpdated.removeListener(listener);
+                }
+            };
+            chrome.tabs.onUpdated.addListener(listener);
+        });
     }
 });
