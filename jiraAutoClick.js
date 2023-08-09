@@ -184,4 +184,30 @@ function fetchData() {
 fetchData();
 
 // Run the function after a delay to ensure the page has fully loaded
-setTimeout(clickCreateButton, 2000);
+// setTimeout(clickCreateButton, 2000);
+
+function waitForElement(selector, callback, maxAttempts = 10, intervalTime = 2000) {
+    let attempts = 0;
+
+    const interval = setInterval(() => {
+        const element = document.querySelector(selector);
+        
+        if (element) {
+            clearInterval(interval);
+            callback(element); // Proceed with your logic
+        } else if (attempts >= maxAttempts) {
+            clearInterval(interval);
+            console.error(`Failed to find element: ${selector} after ${maxAttempts} attempts.`);
+        }
+
+        attempts++;
+    }, intervalTime);
+}
+
+// Usage:
+waitForElement('#create_link', clickCreateButton);
+
+
+
+
+
