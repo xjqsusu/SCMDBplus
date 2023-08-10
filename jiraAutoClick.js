@@ -186,26 +186,25 @@ fetchData();
 // Run the function after a delay to ensure the page has fully loaded
 // setTimeout(clickCreateButton, 2000);
 
-function waitForElement(selector, callback, maxAttempts = 10, intervalTime = 2000) {
-    let attempts = 0;
+function waitForElement(selector, callback, timeout = 30000) {
+    const startTime = Date.now();
 
     const interval = setInterval(() => {
         const element = document.querySelector(selector);
-        
-        if (element) {
-            clearInterval(interval);
-            callback(element); // Proceed with your logic
-        } else if (attempts >= maxAttempts) {
-            clearInterval(interval);
-            console.error(`Failed to find element: ${selector} after ${maxAttempts} attempts.`);
-        }
 
-        attempts++;
-    }, intervalTime);
+        if (element) {
+            clearInterval(interval); // Stop the interval
+            callback(element);       // Proceed with your logic
+            console.log("found create button!!")
+        } else if (Date.now() - startTime > timeout) {
+            clearInterval(interval); // Stop the interval after timeout
+            console.error('Element not found within timeout period:', selector);
+        }
+    }, 1000); // Check every second
 }
 
-// Usage:
 waitForElement('#create_link', clickCreateButton);
+
 
 
 

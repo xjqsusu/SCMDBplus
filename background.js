@@ -7,20 +7,44 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+//     if (request.action === "requestNewPN") {
+//         chrome.tabs.create({ url: 'https://jira.panasonic.aero/secure/RapidBoard.jspa?rapidView=643' }, function(tab) {
+//             // Wait for the new tab to report that it has completed loading
+//             const listener = (newTabId, changeInfo) => {
+//                 if (newTabId === tab.id && changeInfo.status === 'complete') {
+//                     chrome.scripting.executeScript({
+//                         target: {tabId: newTabId},
+//                         files: ['jiraAutoClick.js']
+//                     });
+//                     chrome.tabs.onUpdated.removeListener(listener);
+//                 }
+//             };
+//             chrome.tabs.onUpdated.addListener(listener);
+//         });
+//     }
+// });
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "requestNewPN") {
         chrome.tabs.create({ url: 'https://jira.panasonic.aero/' }, function(tab) {
-            // Wait for the new tab to report that it has completed loading
-            const listener = (newTabId, changeInfo) => {
-                if (newTabId === tab.id && changeInfo.status === 'complete') {
+            const targetURL = "https://jira.panasonic.aero/secure/RapidBoard.jspa?rapidView=643";
+
+            // Create a listener function specifically for this tab
+            function tabUpdateListener(tabId, changeInfo, updatedTab) {
+                if (tabId === tab.id && changeInfo.status === 'complete' && updatedTab.url === targetURL) {
                     chrome.scripting.executeScript({
-                        target: {tabId: newTabId},
+                        target: {tabId: tabId},
                         files: ['jiraAutoClick.js']
                     });
-                    chrome.tabs.onUpdated.removeListener(listener);
+                    
+                    // Once the script is injected, remove this listener
+                    chrome.tabs.onUpdated.removeListener(tabUpdateListener);
                 }
-            };
-            chrome.tabs.onUpdated.addListener(listener);
+            }
+            
+            // Attach the listener
+            chrome.tabs.onUpdated.addListener(tabUpdateListener);
         });
     }
+    // ... your other code ...
 });
