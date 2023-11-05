@@ -27,30 +27,30 @@ function selectDropdownItem() {
     if (scmListItem) {
         console.log("Clicking on the dropdown item...");
         scmListItem.querySelector('a').click();
-        setTimeout(selectPartNumberRequest, 1000);
+        setTimeout(selectManifestRequest, 1000);
     }
 }
 
-function selectPartNumberRequest() {
+function selectManifestRequest() {
     // Wait for the second input box to become available, then type 'Part Number Request' into it
     const issueTypeField = document.getElementById('issuetype-field');
     
     if (issueTypeField) {
-        issueTypeField.value = 'Part Number Request';
+        issueTypeField.value = 'Manifest Request';
         issueTypeField.dispatchEvent(new Event('input', { bubbles: true }));  // Trigger any associated input event listeners
 
         // Select the dropdown option after a delay
         setTimeout(() => {
-            const selector = 'li.aui-list-item-li-part-number-request';
-            const partNumberOption = document.querySelector(selector);
-            if (partNumberOption) {
-                partNumberOption.click();
+            const selector = 'li.aui-list-item-li-manifest-request';
+            const manifestOption = document.querySelector(selector);
+            if (manifestOption) {
+                manifestOption.click();
                 setTimeout(setInputValue, 1000);
             }
         }, 1000);  // Wait 1 second for the dropdown to show up
     } else {
         // Retry after a short delay if the input box is not yet available
-        setTimeout(selectPartNumberRequest, 500);
+        setTimeout(selectManifestRequest, 500);
     }
 }
 
@@ -58,7 +58,7 @@ function setInputValue() {
     const textBox = document.getElementById('summary');
     if (textBox) {
         console.log("Setting text in the Summary field with manifestName:", manifestName);
-        textBox.value = "Part number is needed for " + manifestName;
+        textBox.value = "Manifest request for " + manifestName + " for build - " + buildNumber;
     }
     // Call the new function after updating the Summary field
     setTimeout(setInputForTinyMCE, 1000);
@@ -66,12 +66,23 @@ function setInputValue() {
 
 function setInputForTinyMCE() {
     const iframe = document.querySelector('iframe'); // This assumes there's only one iframe, adjust if necessary
+    //const iframe = iframes[iframes.length - 1]; // This will get the last iframe
     if (iframe) {
         const pElement = iframe.contentDocument.querySelector('#tinymce p');
         if (pElement) {
             // pElement.textContent = ''; // Clear the current content
-            // pElement.textContent = "Part number is needed for " + manifestName; // Set the desired text
-            pElement.innerHTML = "Part number is needed for: " + manifestName + "<br>";
+            // pElement.textContent = "Manifest Name: " + manifestName; // Set the desired text
+            // console.log("Updated the TinyMCE input field with:", pElement.textContent);
+
+            // const versionPElement = document.createElement('p');
+            // versionPElement.textContent = "Version Number: " + versionNumber;
+            // pElement.insertAdjacentElement('afterend', versionPElement);
+
+            // const pnPElement = document.createElement('p');
+            // pnPElement.textContent = "Part Number: " + partNumber;
+            // versionPElement.insertAdjacentElement('afterend', pnPElement);
+
+            pElement.innerHTML = "Manifest Name: " + manifestName + "<br>" + "Version Number: " + versionNumber + "<br>" + "Part Number: " + partNumber;
             // Trigger the 'input' and 'change' events for TinyMCE to detect the change
             const event = new Event('input', {
                 bubbles: true,
@@ -80,9 +91,10 @@ function setInputForTinyMCE() {
             pElement.dispatchEvent(event); // For input event
             pElement.dispatchEvent(new Event('change', { bubbles: true })); // For change event
 
-            console.log("Updated the TinyMCE input field with:", pElement.textContent);
+            console.log("Updated the TinyMCE input field with:", pElement.innerHTML);
+
             // Call the setVersionNumber function after updating the TinyMCE input field
-            setTimeout(setVersionNumber, 500);  // You can adjust this delay if necessary
+            setTimeout(setInputValue2, 500);  // You can adjust this delay if necessary
         } else {
             console.log("Couldn't find the target <p> element inside TinyMCE.");
         }
@@ -91,42 +103,23 @@ function setInputForTinyMCE() {
     }
 }
 
-function setVersionNumber() {
-    const versionInput = document.getElementById('customfield_16003');
-    if (versionInput) {
-        console.log("Setting versionNumber in the input field:", versionNumber);
-        versionInput.value = versionNumber;
-
-        // Trigger any associated input event listeners
-        versionInput.dispatchEvent(new Event('input', { bubbles: true }));
-        // Call the setPartNumber function after setting the versionNumber
-        setTimeout(setPartNumber, 500); 
-    } else {
-        console.log("Couldn't find the version input field.");
+function setInputValue2() {
+    const textBox = document.getElementById('customfield_16002');
+    if (textBox) {
+        console.log("Setting text in the Summary field with manifestName:", atpData);
+        textBox.value = atpData;
     }
-}
-
-function setPartNumber() {
-    const partNumberInput = document.getElementById('customfield_16004');
-    if (partNumberInput) {
-        console.log("Setting partNumber in the input field:", partNumber);
-        partNumberInput.value = partNumber;
-
-        // Trigger any associated input event listeners
-        partNumberInput.dispatchEvent(new Event('input', { bubbles: true }));
-        // Call the setDateSevenDaysFromNow function after setting the partNumber
-        setTimeout(setDateSevenDaysFromNow, 500);
-    } else {
-        console.log("Couldn't find the part number input field.");
-    }
+    // Call the new function after updating the Summary field
+    setTimeout(setDateSevenDaysFromNow, 1000);
 }
 
 function setDateSevenDaysFromNow() {
     const dateInput = document.getElementById('customfield_10303');
-    if (dateInput) {
+    const dateInput2 = document.getElementById('customfield_13503');
+    if (dateInput && dateInput2) {
         const currentDate = new Date();
-        currentDate.setDate(currentDate.getDate() + 7);  // add 7 days to the current date
-
+        // currentDate.setDate(currentDate.getDate() + 7);  // add 7 days to the current date
+        currentDate.setDate(currentDate.getDate());
         // Format the date in the format: DD/Mmm/YY
         const day = String(currentDate.getDate()).padStart(2, '0');  // get the day and pad it to two digits
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -137,34 +130,40 @@ function setDateSevenDaysFromNow() {
 
         console.log("Setting the date to:", formattedDate);
         dateInput.value = formattedDate;
+        dateInput2.value = formattedDate;
+
 
         // Trigger any associated input event listeners
         dateInput.dispatchEvent(new Event('input', { bubbles: true }));
+        dateInput2.dispatchEvent(new Event('input', { bubbles: true }));
         // Call the setBaselineUpdate function after setting the date
-        setTimeout(setBaselineUpdate, 500);
+        setTimeout(selectKitTest, 500);
     } else {
         console.log("Couldn't find the date input field.");
     }
 }
 
-function setBaselineUpdate() {
-    const baselineTextarea = document.getElementById('customfield_16005');
-    if (baselineTextarea) {
-        console.log("Setting 'baseline update' in the textarea field...");
-        baselineTextarea.value = 'Baseline update.';
-        
-        // Trigger any associated input event listeners
-        baselineTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+function selectKitTest() {
+    const select = document.getElementById('customfield_16006');
+    if (select) {
+        const options = select.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].text === 'Kit - Test') {
+                select.selectedIndex = i;
+                console.log("Selected 'Kit - Test'");
+                break;
+            }
+        }
     } else {
-        console.log("Couldn't find the 'baseline update' textarea.");
+        console.log("Couldn't find the dropdown menu");
     }
 }
-
 
 let manifestName = '';
 let versionNumber = '';
 let partNumber = '';
 let buildNumber = '';
+let atpData = '';
 
 // Fetch data from storage
 function fetchData() {
@@ -182,12 +181,14 @@ function fetchData() {
             versionNumber = mostRecentData.versionNumber;
             partNumber = mostRecentData.partNumber;
             buildNumber = mostRecentData.buildNumber;
+            atpData = mostRecentData.atpData;
 
             console.log("Data fetched from storage:");
             console.log("manifestName:", manifestName);
             console.log("versionNumber:", versionNumber);
             console.log("partNumber:", partNumber);
             console.log("buildNumber:", buildNumber);
+            console.log("atpData:", atpData);
         }
     });
 }
@@ -216,9 +217,3 @@ function waitForElement(selector, callback, timeout = 30000) {
 }
 
 waitForElement('#create_link', clickCreateButton);
-
-
-
-
-
-

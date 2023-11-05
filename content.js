@@ -30,18 +30,25 @@ function addCheckboxToRelevantLinks(anchors) {
                 if (checkbox.checked) {
                     const parentRow = checkbox.closest('tr');
                     const manifestName = parentRow.querySelector('td:nth-child(4) a').textContent.trim();
-                    const versionNumber = parentRow.querySelector('td:nth-child(5) a').textContent.trim();
+                    const versionNumber = parentRow.querySelector('td:nth-child(5)').textContent.trim();
                     const partNumber = parentRow.querySelector('td:nth-child(6)').textContent.trim();
+                    const buildNumber = window.location.pathname.split('/')[3];
+                    const atpData = document.querySelector('td.atp-title').getAttribute('data-atp');
+
 
                     console.log('manifestName:', manifestName);
                     console.log('versionNumber:', versionNumber);
                     console.log('partNumber:', partNumber);
+                    console.log('buildNumber:', buildNumber);
+                    console.log('atpData:', atpData);
 
                     // Save to local storage
                     const dataObject = {
                         manifestName: manifestName,
                         versionNumber: versionNumber,
-                        partNumber: partNumber
+                        partNumber: partNumber,
+                        buildNumber: buildNumber,
+                        atpData : atpData
                     };
 
                     // chrome.storage.local.set({ [checkbox.dataset.id]: dataObject });
@@ -61,7 +68,16 @@ function addCheckboxToRelevantLinks(anchors) {
                             checkbox.checked = false;
                         }
                     });
-                    document.getElementById('request-pn-button').style.display = "inline-block"; // Show button when a checkbox is checked
+                    if (manifestName.toLowerCase().includes('44 s/w kit')) {
+                        document.getElementById('request-kit-button').style.display = "inline-block";
+                        document.getElementById('request-pn-button').style.display = "none"; // Show button when a checkbox is checked
+                        document.getElementById("request-manifest-button").style.display = "none";
+                    } else {
+                        document.getElementById('request-kit-button').style.display = "none";
+                        document.getElementById('request-pn-button').style.display = "inline-block"; // Show button when a checkbox is checked
+                        document.getElementById("request-manifest-button").style.display = "inline-block";
+                    }
+                    
                 } else {
                     // If unchecked, remove from storage
                     chrome.storage.local.remove(checkbox.dataset.id);
@@ -69,6 +85,8 @@ function addCheckboxToRelevantLinks(anchors) {
                     const anyChecked = [...document.querySelectorAll('#build_details_table .custom-checkbox')].some(cb => cb.checked);
                     if (!anyChecked) {
                         document.getElementById('request-pn-button').style.display = "none"; // Hide button when no checkboxes are checked
+                        document.getElementById("request-manifest-button").style.display = "none";
+                        document.getElementById("request-kit-button").style.display = "none";
                     }
                 }
             });
@@ -79,20 +97,36 @@ function addCheckboxToRelevantLinks(anchors) {
 }
 
 function addButton() {
-    const button = document.createElement('button');
-    button.innerText = "Request new PN";
-    button.type = "button";
-    button.className = "btn btn-xs btn-primary";
-    button.style.marginLeft = "10px";  // Add some space between buttons
-    button.style.display = "none";  // Initially hidden
-    
-    button.addEventListener('click', function() {
+    const button1 = document.createElement('button');
+    button1.innerText = "Request new PN";
+    button1.type = "button";
+    button1.className = "btn btn-xs btn-primary";
+    button1.style.marginLeft = "10px";  // Add some space between buttons
+    button1.style.display = "none";  // Initially hidden
+
+    const button2 = document.createElement('button');
+    button2.innerText = "Request Manifest";
+    button2.type = "button";
+    button2.className = "btn btn-xs btn-primary";
+    button2.style.marginLeft = "10px";
+    button2.style.display = "none";
+
+    const button3 = document.createElement('button');
+    button3.innerText = "Request Formal Kit";
+    button3.type = "button";
+    button3.className = "btn btn-xs btn-primary";
+    button3.style.marginLeft = "10px";
+    button3.style.display = "none";
+
+    button1.addEventListener('click', function() {
         // Get the checked checkbox data
         const checkedCheckbox = [...document.querySelectorAll('#build_details_table .custom-checkbox')].find(cb => cb.checked);
         const dataObject = {
             manifestName: checkedCheckbox.closest('tr').querySelector('td:nth-child(4) a').textContent.trim(),
-            versionNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(5) a').textContent.trim(),
-            partNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(6)').textContent.trim()
+            versionNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(5)').textContent.trim(),
+            partNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(6)').textContent.trim(),
+            buildNumber: window.location.pathname.split('/')[3],
+            atpData : document.querySelector('td.atp-title').getAttribute('data-atp')
         };
 
         // Save data then open new tab
@@ -110,9 +144,67 @@ function addButton() {
         });
     });
 
+    button2.addEventListener('click', function() {
+        // Get the checked checkbox data
+        const checkedCheckbox = [...document.querySelectorAll('#build_details_table .custom-checkbox')].find(cb => cb.checked);
+        const dataObject = {
+            manifestName: checkedCheckbox.closest('tr').querySelector('td:nth-child(4) a').textContent.trim(),
+            versionNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(5)').textContent.trim(),
+            partNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(6)').textContent.trim(),
+            buildNumber : window.location.pathname.split('/')[3],
+            atpData : document.querySelector('td.atp-title').getAttribute('data-atp')
+        };
+
+        // Save data then open new tab
+        chrome.storage.local.clear(function() {
+            const error = chrome.runtime.lastError;
+            if (error) {
+                console.log(error);
+            } else {
+                chrome.storage.local.set({ [checkedCheckbox.dataset.id]: dataObject }, function() {
+                    chrome.runtime.sendMessage({
+                        action: "requestManifest"
+                    });
+                });
+            }
+        });
+    });
+
+    button3.addEventListener('click', function() {
+        // Get the checked checkbox data
+        const checkedCheckbox = [...document.querySelectorAll('#build_details_table .custom-checkbox')].find(cb => cb.checked);
+        const dataObject = {
+            manifestName: checkedCheckbox.closest('tr').querySelector('td:nth-child(4) a').textContent.trim(),
+            versionNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(5)').textContent.trim(),
+            partNumber: checkedCheckbox.closest('tr').querySelector('td:nth-child(6)').textContent.trim(),
+            buildNumber: window.location.pathname.split('/')[3],
+            atpData : document.querySelector('td.atp-title').getAttribute('data-atp')
+        };
+
+        // Save data then open new tab
+        chrome.storage.local.clear(function() {
+            const error = chrome.runtime.lastError;
+            if (error) {
+                console.log(error);
+            } else {
+                chrome.storage.local.set({ [checkedCheckbox.dataset.id]: dataObject }, function() {
+                    chrome.runtime.sendMessage({
+                        action: "requestNewKit"
+                    });
+                });
+            }
+        });
+    });
+
     const targetButton = document.getElementById("check_latest_button");
-    if (targetButton && !document.getElementById("request-pn-button")) {  // Ensure our button doesn't already exist
-        button.id = "request-pn-button";  // Giving an ID to our new button to identify it
-        targetButton.insertAdjacentElement('afterend', button);
+    if (targetButton && !document.getElementById("request-pn-button") && !document.getElementById("request-manifest-button") && !document.getElementById("request-kit-button")) {  // Ensure our button doesn't already exist
+        button1.id = "request-pn-button";  // Giving an ID to our new button to identify it
+        targetButton.insertAdjacentElement('afterend', button1);
+
+        button2.id = "request-manifest-button";
+        button1.insertAdjacentElement('afterend', button2);
+
+        button3.id = "request-kit-button";
+        button2.insertAdjacentElement('afterend', button3);
     }
 }

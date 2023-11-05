@@ -1,7 +1,9 @@
 {
+"update_url": "https://clients2.google.com/service/update2/crx",
+
   "manifest_version": 3,
   "name": "SCMDB plus",
-  "version": "2.2",
+  "version": "4.0",
   "permissions": ["activeTab", "tabs", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html"
@@ -25,5 +27,5 @@
     "http://scmdb.mascorp.com/*",
     "https://jira.panasonic.aero/*"
   ],
-  "description": "Fixed the JIRA page redirecting issue"
+  "description": "added manifest button"
 }
