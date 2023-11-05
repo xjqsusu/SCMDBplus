@@ -119,7 +119,7 @@ function setDateSevenDaysFromNow() {
     if (dateInput && dateInput2) {
         const currentDate = new Date();
         // currentDate.setDate(currentDate.getDate() + 7);  // add 7 days to the current date
-        currentDate.setDate(currentDate.getDate());
+        currentDate.setDate(currentDate.getDate() + 1);
         // Format the date in the format: DD/Mmm/YY
         const day = String(currentDate.getDate()).padStart(2, '0');  // get the day and pad it to two digits
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
